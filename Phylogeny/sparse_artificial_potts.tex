@@ -1,0 +1,75 @@
+\documentclass[10pt]{article}
+\setlength{\columnsep}{0.75cm}
+\usepackage{geometry}
+ \geometry{
+ letterpaper,
+ total={210mm,297mm},
+ left=20mm,
+ right=20mm,
+ top=20mm,
+ bottom=20mm,
+ }
+
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{mathrsfs}
+\usepackage{dsfont}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{bm} 
+% \usepackage[numbers]{natbib}
+\usepackage[toc,page]{appendix}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{gensymb}
+\usepackage[utf8]{inputenc}  
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{cite}
+\usepackage{color}
+\usepackage{amsmath}
+
+% \definecolor{Zgris}{rgb}{0.87,0.85,0.85}
+
+% \newsavebox{\BBbox}
+% \newenvironment{DDbox}[1]{
+% \begin{lrbox}{\BBbox}\begin{minipage}{\linewidth}}
+% {\end{minipage}\end{lrbox}\noindent\colorbox{Zgris}{\usebox{\BBbox}} \\\include{BarratHW8.tex}
+% [.5cm]}
+
+\newcommand{\ddroit}{\textrm{d}}
+% \newcommand{\eexp}{\text{e}}
+\newcommand{\ie}{\emph{i.e.}$\;$}
+\newcommand{\eg}{\emph{e.g.}$\;$}
+\newcommand{\Ptot}{P(A_1\ldots A_L)}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+
+
+
+\begin{document}
+
+\section{Sparse graph 30_05} % (fold)
+\label{sec:sparse_graph_30_05}
+
+The graph is mapped on PF00014 contact map, with $N = 53$ and $q=4$. $J$ matrix entries consist of a diagonal with value $-1.12$ plus a noisy $q\times q$ gaussian matrix of zero mean and standard deviation $0.15$. Couplings are then written in zero sum gauge, and fields are set to zero. When sampling this  graph with MCMC, equilibration time seems to be around 1000 steps, with clear decorrelation happening before 10000 steps. Two samples are constructed, both of size $M=10^5$ : an ergodic sample, and a tree sample combining configurations obtained by 300 MCMC steps from two different roots (roots are obtained by sampling, they are "equilibrium" configurations). \\
+
+The correlation matrix from the tree sample clearly has one large eigen value, as observed before. The IPR of its eigenvectors is also quite different than those of the ergodic sample. In terms of contact prediction with correlation matrices, the ergodic sample performs better for a large number of predictions. For the first few dozens, the tree sample performs better (why?). The APC correction does not improve on contact predictions made with the ergodic sample, but drastically improves predictions with the tree sample. Removing the first eigenvector from $C_{tree}$ improves even more. Finally, the predictions from the sparse matrix obtained by an $LRS$ decomposition of the $C$ matrices give even better predictions (which are equivalent for both samples). \\
+The $DCA$ inference (MF or plm) gives perfect contact prediction in this case. Couplings are inferred accurately in both cases (for MF, correlation 0.995 between $J_{true}$ and $J_{erg}$, and 0.99 with $J_{tree}$ -- the plm inference seems even more accurate). Fields are quite accurate for the ergodic sample ($\sigma = 0.035$ for MF and $0.012$ for plm), but quite large for the tree sample, which is not surprising. \\
+
+Conclusion : from such a simple phylogeny, removing the main eigenmode from the correlation matrix improves contact predictions made from correlation only. An LRS decomposition seems even better (and also improves predictions made from an ergodic sample, doing part of the disentangling). However, DCA inference is perfect in this case, so those corrections are not needed anyway.\\
+
+As a test (01_06_1), the same method was applied with a tree sample with $\tau=30$. Although MF inference starts to be innacurate, due to the very large phylogenetic correlations, the contact prediction from the MF couplings is almost perfect. Correcting the $C$ matrix by removing the first eigenvector gives a worse inference in terms of parameters estimation ($l2$ error of 24, vs 6 for the ergodic sample), but gives a perfect contact prediction (with MF inference, $C$ regularized with Martin's trick, or with SA+plm, which gives quite similar results). \\
+Interestingly, the contact prediction from the corrected $C$ matrix is much better than that of the ergodic sample, in turn much better than the raw tree sample. In other words, when the phylogenetic signal is removed from $C_{tree}$, the topology of the resulting matrix is much closer to the real interactions, without indirect effects. 
+
+
+% section sparse_graph_30_05 (end)
+
+	
+\end{document}
+
+

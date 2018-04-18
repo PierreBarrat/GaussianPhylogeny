@@ -1,0 +1,184 @@
+\documentclass[10pt]{article}
+\setlength{\columnsep}{0.75cm}
+\usepackage{geometry}
+ \geometry{
+ letterpaper,
+ total={210mm,297mm},
+ left=20mm,
+ right=20mm,
+ top=20mm,
+ bottom=20mm,
+ }
+
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{mathrsfs}
+\usepackage{dsfont}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{bm} 
+% \usepackage[numbers]{natbib}
+\usepackage[toc,page]{appendix}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{gensymb}
+\usepackage[utf8]{inputenc}  
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{cite}
+\usepackage{color}
+\usepackage{amsmath}
+
+% \definecolor{Zgris}{rgb}{0.87,0.85,0.85}
+
+% \newsavebox{\BBbox}
+% \newenvironment{DDbox}[1]{
+% \begin{lrbox}{\BBbox}\begin{minipage}{\linewidth}}
+% {\end{minipage}\end{lrbox}\noindent\colorbox{Zgris}{\usebox{\BBbox}} \\\include{BarratHW8.tex}
+% [.5cm]}
+
+\newcommand{\ddroit}{\textrm{d}}
+% \newcommand{\eexp}{\text{e}}
+\newcommand{\ie}{\emph{i.e.}$\;$}
+\newcommand{\eg}{\emph{e.g.}$\;$}
+\newcommand{\Ptot}{P(A_1\ldots A_L)}
+\newcommand{\xz}{\vec{x}_0}
+\newcommand{\xo}{\vec{x}_1}
+\newcommand{\xt}{\vec{x}_2}
+\newcommand{\Lam}{\bm{\Lambda}}
+\newcommand{\Sig}{\bm{\Sigma}}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\newcommand{\Xk}[1]{X^{\{#1\}}}
+\newcommand{\xk}[1]{\vec{x}_{#1}}
+
+
+
+
+\begin{document}
+
+\section{Ornstein-Uhlenbeck dynamics} % (fold)
+\label{sec:ornstein_uhlenbeck_dynamics}
+
+The system studied is the following. A tree -- balanced and binary in the following -- is given, with $K$ division events and a time $\Delta t$ being assigned to each of its branches. A root configuration $\vec{x}$ is chosen with gaussian probability $
+$$ P_{eq}(\vec{x}) = \frac{1}{\sqrt{(2\pi)^N \vert \bm{C}\vert}}\exp\left\{ -\frac{1}{2}\vec{x}^T\bm{C}^{-1}\vec{x} \right\}. $$ 
+It then evolves using dynamics described below. At each division event of the tree, two copies of the system are created and evolve independently along each branch. The final result of the process are the configurations of the $2^K$ leaves of the tree. \\
+The inference problem is the following. With the knowledge of the leaves configurations and of the type of evolution dynamics, is it possible to reconstruct the potential $\bm{C}^{-1}$ acting on the system? The idea for this is 
+\begin{itemize}
+ 	\item Compute the probability of observing leaves configurations given the potential $\bm{C}^{-1}$, $P(leaves\vert\bm{C})$.
+ 	\item Invert this relation using Bayes formula: $$P(\bm{C}\vert leaves) = \frac{P(leaves\vert\bm{C})P(\bm{C})}{Z}$$
+ \end{itemize}
+
+\subsection{Dynamics} % (fold)
+\label{sub:dynamics}
+
+
+The Langevin equation for a $N$-dimensional particle with position $\vec{x} = (x_i),\;\;i\in\{1\ldots N\}$ in a harmonic potential centered in $\vec{0}$ is 
+\begin{equation}
+	\gamma \frac{\ddroit x_i}{\ddroit t} = -\sum_{j}\lambda_{ij}x_j + \sqrt{2kT\gamma}\xi_i(t)
+\end{equation}
+with $\langle \xi_i(t)\xi_j(t') \rangle = \delta_{ij}\delta(t-t')$. The diffusion coefficient is $D = kT/\gamma$. The force on the particle is represented by the stiffness matrix $\lambda_{ij}$. It can be shown that the corresponding Fokker-Planck equation is 
+\begin{equation}
+ 	\gamma\partial_t P = \left(-\sum_{i,j}\frac{\partial}{\partial x_i}\lambda_{ij}x_j + kT\frac{\partial^2}{\partial x_i^2}\right)P
+\end{equation} 
+The stationnary state solution of this is 
+\begin{equation}
+\label{eq:multiFP}
+	P_{eq}(\vec{x}) = \frac{1}{\sqrt{(2\pi)^N \vert \bm{C}\vert}}\exp\left\{ -\frac{1}{2kT}\vec{x}^T\bm{C}^{-1}\vec{x} \right\}
+\end{equation}
+with $\bm{C}=\lambda^{-1}$. In other words, the potential the particle evolves in is $V(x)=\frac{1}{2}\vec{x}^T\bm{C}^{-1}\vec{x} = \frac{1}{2}\sum_{i,j} \lambda_{ij}x_i x_j$. For our case, we can set $kT=1$ for the rest.\\
+
+Following \cite{singh2017multiOU}, we can explicitely write the solution of \ref{eq:multiFP}. The result is an Ornstein-Uhlenbeck process defined in the following way
+\begin{equation}
+	\label{eq:multiOU}
+	\begin{split}
+		P(\vec{x}) =& \frac{1}{\sqrt{(2\pi)^N \vert \bm{C}\vert}}\exp\left\{ -\frac{1}{2}\vec{x}^T\bm{C}^{-1}\vec{x} \right\},\\
+		P(\vec{x}_2 | \vec{x}_1, \Delta t) =& \frac{1}{\sqrt{(2\pi)^N(1-e^{-2\Delta t})\vert\bm{\Sigma}^{-1}\vert}}\exp\left\{ -\frac{1}{2}(\vec{x}_2 - \vec{\mu_1})^T\bm{\Sigma}^{-1}(\vec{x}_2 - \vec{\mu_1}) \right\}.
+	\end{split}
+\end{equation}
+where 
+$$ \mu_1 = \Lam\vec{x}_1, \qquad \bm{\Sigma} = \bm{C} - \Lam\bm{C}\Lam, \qquad \Lam = e^{-\bm{\gamma C}^{-1}\Delta t}.$$ Thus, the average and covariance of variable $\vec{x}_1$ are time dependent through matrix $\Lam$, which itself depends on the equilibrium properties of the process through $\bm{C}$, and through the dynamical parameter $\gamma$. It is important to notice that $\Lam$, $\bm{C}$ and $\bm{\Sigma}$ all commute and are symetric. \\
+
+\textbf{Note}: On dimensions. $\bm{C}\sim [T^2]$, $\Lam\sim[T^{-2}]$, $\gamma\sim[T^{-1}]$ and $kT\sim[L^2T^{-2}]$.\\
+
+What is the probability of observing two configurations $\vec{x}_1$ and $\vec{x}_2$ of the system knowing that they are separated by time $\Delta t$? Using the identity $\bm{C}^{-1} = \Sig^{-1}(1-\Lam^2)$, we find
+\begin{equation}
+	\label{eq:JointProbTwoVar}
+	\begin{split}
+		\log P(\vec{x}_2, \vec{x}_1, \Delta t) &\propto -\frac{1}{2}\left[ \xt^T\Sig^{-1}\xt - 2\xt^T\Sig^{-1}\Lam\xo + 2\xo^T\Lam\Sig^{-1}\Lam\xo + \xo^T\bm{C}^{-1}\xo \right]\\
+					&\propto -\frac{1}{2}\left[ \xt^T\Sig^{-1}\xt + \xo^T\Sig^{-1}\xo - 2\xo^T(\Lam\Sig^{-1})\xt \right],
+	\end{split}
+\end{equation}
+which is a gaussian distribution with a block correlation matrix, having $\Sig^{-1}$ on the diagonal blocks and $-\Lam\Sig^{-1}$ on the off-diagonal part. Inverting this matrix -- like a $2\times2$ matrix, since everything commutes -- yields the following expression for the covariance of configurations $\xo$ and $\xt$ separated by $\Delta t$:
+\begin{equation}
+	\langle\xo\xt^T\rangle = \Lam\Sig^{-1}\cdot\Sig^2(1-\Lam^2)^{-1} = \Lam \bm{C}.
+\end{equation}
+
+% subsection dynamics (end)
+
+\subsection{Small trees} % (fold)
+\label{sub:small_trees}
+
+As an exercise, let us compute probability of the smallest non trivial tree, $ie$ root $\xz$ with children $\xo$ and $\xt$ and branch length $\Delta t$. The probability of observing given configurations on this topology is 
+\begin{equation}
+	\begin{split}
+		P(\xz,\xo,\xt ; \Delta t) &= P(\xo\vert\xz)P(\xt\vert\xz)P(\xz)\\
+		&\propto\exp-\frac{1}{2}\left\{ \xo\Sig^{-1}\xo + \xt\Sig^{-1}\xt - 2(\xo + \xt)\Sig^{-1}\Lam\xz + \xz\Sig^{-1}(1+\Lam^2)\xz \right\},
+	\end{split}
+\end{equation}
+where the identity $\bm{C}^{-1} = \Sig^{-1}(1-\Lam^2)$ has been used.
+Integrating this over all values of $\xz$ using eq.~(\ref{eq:GaussianIntegration}), and remembering that $\Sig(2\Delta t) = \bm{C} - \Lam^2\bm{C}\Lam^2$, we recover equation \ref{eq:JointProbTwoVar} with $\Delta t \rightarrow 2\Delta t$, that is with $\Lam\rightarrow\Lam^2$.
+
+\textbf{Note}: Gaussian integration
+\begin{equation}
+	\label{eq:GaussianIntegration}
+	\int\exp-\frac{1}{2}\left\{\vec{x}^TA\vec{x} + B^T\vec{x}\right\}\ddroit^{n}x = \left( \frac{(2\pi)^n}{\vert A\vert} \right)^{1/2}\exp\left(\frac{1}{8}B^TA^{-1}B\right)
+\end{equation}
+
+Let us do the same thing for a tree with two levels. Nodes are labelled from $0$ to $6$, with $\xk{1}$ and $\xk{2}$ being the children of root $\xk{0}$, and so on. The full probability can be written
+\begin{equation}
+	P(\{\xk{i}\}_{i=0\ldots 6}) = P(\xk{3},\xk{4}\vert\xk{1})P(\xk{5},\xk{6}\vert\xk{2})P(\xk{1}\vert\xk{0})P(\xk{2}\vert\xk{0})P_{eq}(\xk{0})
+\end{equation}
+Integrating this over $\xk{0}$ gives equation \ref{eq:JointProbTwoVar} for variables $1$ and $2$, with $\Delta t\rightarrow2\Delta t$, while the part concering variables $3$ to $6$ remains untouched. Thus, we have to perform the following integration.
+\begin{equation}
+	\begin{split}
+		P(\{\xk{i}\}_{i=3\ldots 6}) = \int\ddroit\xk{1}\ddroit\xk{2}&P(\xk{3},\xk{4}\vert\xk{1})P(\xk{5},\xk{6}\vert\xk{ 2})\cdot P(\vec{x}_2, \vec{x}_1, 2\Delta t)\\
+		\propto \int\ddroit\xk{1}\ddroit\xk{2} \exp\,-\frac{1}{2}&\left\{ (\xk{3/4}-\Lam\xk{1})\bm{C}^{-1}(1-\Lam^2)^{-1}(\xk{3/4}-\Lam\xk{1}) +  (\xk{5/6}-\Lam\xk{2})\bm{C}^{-1}(1-\Lam^2)^{-1}(\xk{5/6}-\Lam\xk{2})\right.\\
+		&\left. +\xk{1/2}\bm{C}^{-1}(1-\Lam^4)^{-1}\xk{1/2} -2\xk{1}\bm{C}^{-1}\Lam^2(1-\Lam^4)^{-1}\xk{2}  \right\}
+	\end{split}
+\end{equation}
+where the notation $\xk{1/2}$ means that the corresponding term must be repeated for variables $1$ and $2$. For example, $\xk{1/2}\bm{U}\xk{1/2} = \xk{1}\bm{U}\xk{1} + \xk{2}\bm{U}\xk{2}$. Here, we used the fact that when $\Delta t\rightarrow2\Delta t$, $\Lam\rightarrow\Lam^2$.
+Since we have to integrate over $1$ and $2$, let us count linear and quadratic terms in those parameters to apply eq~(\ref{eq:GaussianIntegration}). For instance, $\xk{1}$:
+\begin{itemize}
+	\item Quadratic: $2\bm{C}^{-1}\Lam^2(1-\Lam^2)^{-1} + \bm{C}^{-1}(1-\Lam^4)^{-1}$
+	\item Linear: $ -2\bm{C}^{-1}\Lam(1-\Lam^2)(\xk{3}+\xk{4}) - 2\bm{C}^{-1}\Lam^2(1-\Lam^4)^{-1}\xk{2} $
+\end{itemize}
+From this point, it is quite clear that the result will be gaussian. The output of the integration will give quadratic and cross terms in $\xk{3/4/5/6}$, with a correlation matrix depending on $\bm{C}$ and $\Lam$. The exact expression has to be computed, though. \\
+
+% subsection small_trees (end)
+
+\subsection{General tree?} % (fold)
+\label{sub:general_tree_}
+
+Let us consider a binary tree with $K+1$ levels, labelled $k\in\{0\ldots K\}$. Nodes at level $k$ are written $X^{\{k\}} = (X^i)_{i=1\ldots 2^k}$. In the following, we consider two levels of the tree, $k$ and $k+1$, and introduce the following notation: nodes in level $k$ are written $\Xk{k} = (X^i_0)_{i=1\ldots 2^k}$ and nodes in $k+1$ $\Xk{k+1} = \left((X^i_1, X^i_2)\right)_{i=1\ldots 2^{k}}$, where $(X^i_1, X^i_2)$ are children of node $X^i_0$. \\
+What we want to know is the probability of a configuration of nodes at level $k+1$, independently of the parent configurations. We assume that this quantity is known for level $k$, and we try to propagate it down the tree. Furthermore, we assume that $P(\Xk{k}) = P(X^{1}_0\ldots X^{2^k}_0)$ is a gaussian. In this case, the probability of observing a given configuration in level $k+1$ is
+\begin{equation}
+	\label{eq:TreePropagation}
+	P(\Xk{k+1}) = \int\left(\prod_{i=1}^{2^k}\ddroit X^{i}_0\right)P(X^{1}_0\ldots X^{2^k}_0)\prod_{i=1}^{2^k}P( X^{i}_1, X^{i}_2\vert X^{i}_0).
+\end{equation}
+Since $P( X^{i}_1, X^{i}_2\vert X^{i}_0)$ is a gaussian in all three variables, and $P(X^{1}_0\ldots X^{2^k}_0)$ is gaussian by assumption, the resulting distribution for nodes at level $k+1$ will also be a gaussian. And since the root of the tree is by assumption a gaussian variable with correlation matrix $\bm{C}$, the leaves of the tree are correlated gaussian variable by recursion. Quite clearly, the correlation matrix of the leaves is a combination of $\bm{C}^{-1}$ and of $\Lam$. Given the expression found for the 2-levels tree and the 3-levels tree (not finished, but it points in this direction), it is likely that this combination involves a product of $\bm{C}^{-1}$ with fraction of polynomials of $\Lam$. Branch length and number of children do not change this, but only the nature of $\Lam$.\\
+Thus, what would be analytically useful is to propagate the correlation matrix through the tree by finding some recursive equation. In other words, given correlation matrix $\Xi_k$ for level $k$, find $\Xi_{k+1}$ as a function of $\Xi_k$ and $\Lam$ by performing the integration in eq~(\ref{eq:TreePropagation}). Solving this numerically would then give us the likelihood of the data given parameters $\bm{C}$ in the form of a gaussian function. This could then be inverted by Bayes theorem to obtain an estimator of $\bm{C}$.
+
+
+% subsection general_tree_ (end)
+
+% section ornstein_uhlenbeck_dynamics (end)
+
+
+\bibliography{bib_phylo}
+\bibliographystyle{unsrt}
+
+
+
+\end{document}

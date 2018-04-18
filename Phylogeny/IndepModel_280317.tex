@@ -1,0 +1,146 @@
+\documentclass[10pt]{article}
+\setlength{\columnsep}{0.75cm}
+\usepackage{geometry}
+ \geometry{
+ letterpaper,
+ total={210mm,297mm},
+ left=20mm,
+ right=20mm,
+ top=20mm,
+ bottom=20mm,
+ }
+
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{mathrsfs}
+\usepackage{dsfont}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{bm} 
+% \usepackage[numbers]{natbib}
+\usepackage[toc,page]{appendix}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{gensymb}
+\usepackage[utf8]{inputenc}  
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{cite}
+\usepackage{color}
+\usepackage{amsmath}
+
+% \definecolor{Zgris}{rgb}{0.87,0.85,0.85}
+
+% \newsavebox{\BBbox}
+% \newenvironment{DDbox}[1]{
+% \begin{lrbox}{\BBbox}\begin{minipage}{\linewidth}}
+% {\end{minipage}\end{lrbox}\noindent\colorbox{Zgris}{\usebox{\BBbox}} \\\include{BarratHW8.tex}
+% [.5cm]}
+
+\newcommand{\ddroit}{\textrm{d}}
+% \newcommand{\eexp}{\text{e}}
+\newcommand{\ie}{\emph{i.e.}$\;$}
+\newcommand{\eg}{\emph{e.g.}$\;$}
+\newcommand{\Ptot}{P(A_1\ldots A_L)}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+
+
+
+\begin{document}
+
+\section{Correlated mutation rate} % (fold)
+\label{sec:correlated_mutation_rate}
+
+System of $N$ indepedent spins $s_i\in\{-1,+1\}$, with fields $h_i$, such that at equilibrium
+\begin{equation}
+	\label{eq:Eq_distribution}
+	P_{eq}(\mathbf{s}) = \frac{1}{Z}\exp\left(\sum_{i=1}^N h_i s_i \right) = \prod_{i=1}^N\frac{e^{h_i s_i}}{Z_i}.
+\end{equation}
+
+Starting from a sequence $\mathbf{s^0}$, the dynamic will be the following: at each time step, a unique position $1\leq i\leq N$ is chosen at random with probability $1/N$, and spin $s_i$ is re-emitted with equilibrium probability $e^{h_is_i}/Z_i$. This dynamic will obviously lead to equilibrium, with some characteristic time proportional to $N$. We ask what the marginal distribution of spins $f_i(s_i)$ and $f_{ij}(s_i,s_j)$ are at time $t\ll N$. \\
+
+Single site frequencies have the following distribution at time $t$
+\begin{equation}
+	f_i^t(s_i\vert s_i^0) = \nu_1^t\delta(s_i=s_i^0) + (1-\nu^t)\frac{e^{h_is_i}}{Z_i},
+\end{equation}
+where $\nu_1=1-1/N=(N-1)/N$. To the order one in $t/N$, this has the following form 
+\begin{equation}
+	f_i^t(s_i\vert s_i^0) = \left(1-\frac{t}{N}\right)\delta(s_i^0) + \frac{t}{N}\frac{e^{h_is_i}}{Z_i}.
+\end{equation}
+A naïve inference considering configurations distant of $t$ from $\mathbf{s}^0$ as indepdant would give the following fields:
+\begin{equation}
+	\label{eq:inferred_fields_naive}
+	\begin{split}
+		h_i^{inf}(t) &= \frac{1}{2}\log\left(\frac{f_i^t(1)}{1-f_i^t(1)}\right)\\
+					 &= -\frac{s_i^0}{2}\log\frac{t}{N}\frac{e^{-h_is_i^0}}{Z_i}.
+	\end{split}
+\end{equation}
+\emph{Note: This seems to works numerically, up to $t\sim 2N$ on a $N=32$ spins system with fields distributed normally and any starting configuration. In the sense that up to $t\sim 2N$, inferred fields are closer to equation (\ref{eq:inferred_fields_naive}) than to actual fields of the model.}\\
+
+For pairwise frequencies, one defines $\nu_2 = 1-2/N = (N-2)/N$. There are three possibilities for mutations at sites $i$ and $j$, giving three terms in $f_{ij}^t$: 
+\begin{description}
+	\item [\emph{(i)}] Neither $i$ nor $j$ have been mutated. Corresponding probability is $\nu_2^t$.
+	\item [\emph{(ii)}] $i$ has been mutated at least once, but not $j$. Corresponding probability is $\nu_1^t(1-(1-1/(N-1))^t) = \nu_1^t - \nu_2^t$. Of course, the symetrical event is also possible, and situation \emph{(ii)} should count two times. 
+	\item [\emph{(iii)}] Both $i$ and $j$ have been mutated at least once. By substraction of \emph{(i)} and $2\cdot$\emph{(ii)}, corresponding probability is $1-2\nu_1^t+\nu_2^t$.
+\end{description}
+Combining these three events, we have the following equation for pairwise frequencies:
+\begin{equation}
+	f_{ij}^t(s_i,s_j\vert s_i^0, s_j^0) = \nu_2^t\delta(s_i^0,s_j^0) + (\nu_1^t - \nu_2^t)\left(\frac{e^{h_is_i}}{Z_i}\delta(s_j^0) + \frac{e^{h_js_j}}{Z_j}\delta(s_i^0)\right) + \left(1 - 2\nu_1^t + \nu_2^t\right)\left(\frac{e^{h_is_i}e^{h_js_j}}{Z_iZ_j}\right).
+\end{equation}
+
+If one does not know the starting sequence $s^0$, it is necessary to integrate over all its possible values, with probability distribution $P_{eq}(s^0)$. It can also be interesting to take into account finite size sampling effects. If frequency $f_i$ is obtained through independently repeating the dynamic described above $M$ times, always starting from $s^0$, then one can expect a finite sample error effect having a variance 
+$$\sigma_{f1}^2(s_i\vert s^0) = f_i(s_i\vert s^0)\left(1-f_i(s_i\vert s^0)\right)$$
+In this scenario, the frequency measured for a given tree with root $s^0$ and $M$ branches of length $t$ with configurations $\sigma^1\ldots\sigma^M$, is the following random variable: 
+\begin{equation}
+	\tilde{f}_i(s_i\vert s^0)[s^0,u] = \;\,\frac{1}{M}\sum_{a=1}^M\delta(\sigma_i^a=s_i) \equiv \;\, \nu_1^t\delta(s_i=s^0_i) + (1-\nu^t)P_{eq}(s_i) + u(s_i\vert s^0)
+\end{equation}
+with gaussian random variable $u\sim\mathcal{N}\left(0,\sigma^2_{f1}(s_i\vert s^0)/M\right)$.
+
+
+% section correlated_mutation_rate (end)
+
+\section{Uncorrelated mutations} % (fold)
+\label{sec:uncorrelated_mutations}
+
+Similar process as in the previous section, but mutations can now take place at two sites at the same time in an uncorrelated manner. At each time step, each site has a probability $\mu$ to mutate, being re-emitted with equilibrium probability. \\
+If the tree of configurations is star like, with all configurations originating from a single root $\mathbf{s}^0$ with no intermediate branching, no correlations can be generated by this process. However, it is possible to give rise to correlations if configurations originate from two different roots $\mathbf{s}^1$ and $\mathbf{s}^2$, as would happen in a binary tree for instance. If one considers children configurations of $\mathbf{s}^1$ and $\mathbf{s}^2$ as a single sample, the single and two sites probability frequencies can be written in following way:
+\begin{equation}
+	P(s_i\vert \mathbf{s}^1, \mathbf{s}^2) = \frac{1}{2}\sum_{a=1}^{2}\left[\nu^t\delta(s_i=s^1_i) + (1-\nu^t)P_{eq}(s_i)\right],
+\end{equation}
+and
+\begin{equation}
+	\begin{split}
+		P(s_i,s_j\vert \mathbf{s}^1, \mathbf{s}^2) = \frac{1}{2}\sum_{a=1}^{2} &\left[\nu^{2t}\delta(s_i=s_i^a, s_j=s_j^a)\right. \\
+		+ &\nu^t(1-\nu^t)\left(\delta(s_i=s_i^a)P_{eq}(s_j) + \delta(s_j=s_j^a)P_{eq}(s_i)\right)\\
+		+ &\left.(1-\nu^t)^{2}P_{eq}(s_i,s_j)\right],
+	\end{split}
+\end{equation}
+where $\nu=1-\mu$.\\
+Corresponding connected correlations can be computed exactly from these two equations. With shorter notations $\delta_i(\sigma)=\delta(s_i=\sigma)$, they read
+\begin{equation}
+	c_{ij}(s_i,s_j\vert\mathbf{s}^1,\mathbf{s}^2) = \frac{1}{4}\left[\delta_i(s_i^1)\delta_j(s_j^1) + \delta_i(s_i^2)\delta_j(s_j^2) - \delta_i(s_i^1)\delta_j(s_j^2) - \delta_i(s_i^2)\delta_j(s_j^1)\right]\nu^{2t}.
+\end{equation}
+If configurations $\mathbf{s}^1$ and $\mathbf{s}^2$ both originate from the same configuration $\mathbf{s}^0$, it is reasonnable to consider that they are independent from each other -- in the sense that $P(s_i^1,s_j^2)=P(s_i^1)P(s_j^2)$ -- and identically distributed. However, it is possible that they are not distributed according to $P_{eq}$, for instance if the time separating them from $\mathbf{s}^0$ is too short, or if their distribution is known from a bigger tree of which $\mathbf{s}^0$ is not the root, thus introducing correlations. From these assumptions, one can compute the average value of the correlation over the root sequences:
+\begin{equation}
+	\langle c_{ij}(s_i,s_j\vert \mathbf{s^0})\rangle = \frac{1}{2}\left(P^1(s_i,s_j\vert \mathbf{s}^0) - P^1(s_i\vert \mathbf{s}^0)P^1(s_j\vert \mathbf{s}^0) \right)\nu^{2t}
+\end{equation}
+where $P^1$ represents the distribution of configurations $\mathbf{s}^1$ and $\mathbf{s}^2$, (\ie $P^1(s_i) = P(s_i^a=s_i)$, $a=1$ ou $2$). The average value of correlation at the second step of the tree, that is for configurations below $\mathbf{s}^1$ and $\mathbf{s}^2$, is the value of correlation at the superior step with $\mathbf{s}^0$ fixed. If parent configurations are distributed with equilibrium probability $P_{eq}$, the average correlation is zero.\\
+One can also compute the standard deviation of the correlations, which gives an indication of how large the expected correlation would be on average, for a given distribution of root configurations. If $\mathbf{s}^1$ and $\mathbf{s}^2$ are distributed according to $P_{eq}$, one can show that 
+\begin{equation}
+	\langle c_{ij}(s_i,s_j)^2 \rangle = \frac{\nu^{4t}}{4}P_{eq}(s_i)P_{eq}(s_j)(1-P_{eq}(s_i))(1-P_{eq}(s_j)).
+\end{equation}
+
+
+
+% section uncorrelated_mutations (end)
+
+
+
+
+
+\end{document}
