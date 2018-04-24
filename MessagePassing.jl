@@ -1,3 +1,9 @@
+type message
+	Phi::Array{Float64,2}
+	Psi::Array{Float64,1}
+	initialized::Bool
+end
+
 type MPnode
 	children::Array{Int64,1}
 	par::Int64
@@ -7,11 +13,7 @@ type MPnode
 	field::Array{Float64,2}
 end
 
-type message
-	Phi::Array{Float64,2}
-	Psi::Array{Float64,1}
-	initialized::Bool
-end
+
 
 
 
@@ -22,10 +24,7 @@ end
 1. `j` requires messages from all its children `k`, calling `AskMessage(MPgraph,j,k)`. If `i` is also a children of `k`, error is raised. If `j` has no children, this part has no effect.
 2. Message from `j` to `i` is computed using the local fields at `j`, the coupling between `i` and `j`, and incoming messages from children to `j`. 
 """
-function AskMessage(MPgraph::Array{MPnode,1}, i::Int64, j::Int64, J::Array{Float64,2})
-
-	# Phi = zeros(Float64,q,q)
-	# Psi = zeros(Float64,q)
+function AskMessage!(MPgraph::Array{MPnode,1}, i::Int64, j::Int64, J::Array{Float64,2})
 
 	println("Asking message: $i ---> $j")
 	# Safety checks
@@ -38,7 +37,7 @@ function AskMessage(MPgraph::Array{MPnode,1}, i::Int64, j::Int64, J::Array{Float
 	# Gathering messages from all children of `j`
 	for (id,k) in enumerate(MPgraph[j].children)
 		if !MPgraph[j].messfromchild[id].initialized
-			MPgraph[j].messfromchild[id] = AskMessage(MPgraph, j, k, J)
+			MPgraph[j].messfromchild[id] = AskMessage!(MPgraph, j, k, J)
 		else
 			error("MessagePassing.jl - AskMessage: Asking an already initialized message.\n")
 		end
@@ -73,9 +72,6 @@ Sends message from `i` to `j`. `j` should be one of the children of `i`. If this
 2. Message from `i` to `j` is computed.  
 """
 function SendMessage(MPgraph::Array{MPnode,1}, i::Int64, j::Int64, J::Array{Float64,2})
-
-	# Phi = zeros(Float64,q,q)
-	# Psi = zeros(Float64,q)
 
 	println("Sending message: $i ---> $j")
 
@@ -120,11 +116,11 @@ end
 
 Computes and sends message from `i` to all of its children. Calls itself recursively on all children of `i`. 
 """
-function PushMessage(MPgraph::Array{MPnode,1}, i::Int64, J::Array{Float64,2})
+function PushMessage!(MPgraph::Array{MPnode,1}, i::Int64, J::Array{Float64,2})
 	# println("Pushing messages from $i.")
 	for k in MPgraph[i].children
 		MPgraph[k].messfrompar = SendMessage(MPgraph, i, k, J::Array{Float64,2})
-		PushMessage(MPgraph, k, J)
+		PushMessage!(MPgraph, k, J)
 	end
 end
 
@@ -136,7 +132,7 @@ Compute all messages for the given tree `MPgraph`. Steps of the computation are 
 2. Call `AskMessage(MPgraph, root, c, J)` for all `c` children of `root`. The `AskMessage` process is then called recursively on all the tree.
 3. Call `PushMessage(MPgraph, root, J)`, pushing message from the root to all of its children, and calling `PushMessage` recursively.
 """
-function ComputeMessages(MPgraph::Array{MPnode,1}, J::Array{Float64,2})
+function ComputeMessages!(MPgraph::Array{MPnode,1}, J::Array{Float64,2})
 
 	## Finding root
 	flag = 0
@@ -153,14 +149,14 @@ function ComputeMessages(MPgraph::Array{MPnode,1}, J::Array{Float64,2})
 
 	## Starting the AskMessage procedure from roots
 	for (id,c) in enumerate(MPgraph[root].children)
-		MPgraph[root].messfromchild[id] = AskMessage(MPgraph, root, c, J)
+		MPgraph[root].messfromchild[id] = AskMessage!(MPgraph, root, c, J)
 	end
 
 	## Sending messages from root 
-	PushMessage(MPgraph, root, J)
+	PushMessage!(MPgraph, root, J)
 
 	## Now MPgraph contains all messsages
-	return MPgraph
+	# return MPgraph
 end
 
 """
@@ -235,7 +231,7 @@ function RunMP(treefile::String, Cfile::String)
 
 	(MPgraph, J) = InitializeGraph(treefile, C)
 	typeof(MPgraph)
-	MPgraph = ComputeMessages(MPgraph, J)
+	ComputeMessages!(MPgraph, J)
 	return MPgraph
 end
 
@@ -300,3 +296,23 @@ function ComputePairFreq(X::Array{Float64,1}, Y::Array{Float64,1}, C, dt::Float6
 end
 
 
+"""
+	function SumMessages(node::MPnode, i::Int64)
+
+Computes the sum of all messages coming to `node`, except that from `i`.
+"""
+function SumMessages(node::MPnode, i::Int64)
+	L = size(node.field)[1]
+	sm = message(zeros(Float64,L,L), zeros(Float64,L), true)
+	for (j,mj) in enumerate(node.messfromchild)
+		if node.children[j]!=i
+			sm.Phi += mj.Phi
+			sm.Psi += mj.Psi
+		end
+	end
+	if node.par > 0 && node.par != i
+		sm.Phi += node.messfrompar.Phi
+		sm.Psi += node.messfrompar.Psi
+	end
+	return sm
+end
