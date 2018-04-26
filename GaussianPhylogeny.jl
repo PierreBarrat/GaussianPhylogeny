@@ -193,7 +193,7 @@ function ComputeLikelihood(tree::Array{OTnode,1}, invC::Array{Float64,2}, dt::Fl
 	ComputeMessages!(MPgraph,J)
 	F_MP = MPComputeF(MPgraph, J)
 	F_leaves = ComputeLikelihoodLeaves(tree, invC, dt)
-	return (F_leaves + F_MP - F_all, F_all, F_MP, F_leaves, MPgraph, J)
+	return (F_leaves + F_MP - F_all, F_all, F_MP, F_leaves)
 
 end
 
