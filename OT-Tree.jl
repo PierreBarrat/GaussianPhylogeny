@@ -63,7 +63,7 @@ end
 
 """
 """
-function SampleChildren!(tree::Array{OTnode,1}, i::Int64,C::Array{Float64,2},invC::Array{Float64,2})
+function SampleChildren!(tree::Array{OTnode,1}, i::Int64, C::Array{Float64,2}, invC::Array{Float64,2})
 	# println("---- Sampling children of $i:")
 	for c in tree[i].children
 		SampleChild!(tree[c],tree[i],C,invC)
@@ -93,4 +93,10 @@ function SampleTree(treefile::String, Cfile::String)
 	return tree
 end
 
+"""
+"""
+function OTsample(treefile::String, Cfile::String, outfile::String)
+	tt = SampleTree(treefile,Cfile)
+	writedlm(outfile, )
+end
 

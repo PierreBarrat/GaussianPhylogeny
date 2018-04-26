@@ -460,7 +460,7 @@ Let us now write the probability of observing a certain configuration $\vec{X_d}
 The first member of the right hand side is the free energy associated to $\mathcal{H}^0$, described by equation \ref{eq:ML_F0}. The second member is the sum of Boltzmann weights over a sub ensemble of the system, with leaves fixed to a given configuration. This can be seen as the partition function of a second hamiltonian $\mathcal{H}^d(\vec{X}_h) = \mathcal{H}^0(\vec{X}_h,\vec{X}_d)$. Analytical expression of $\mathcal{H}^d$ can easily be written
 \begin{equation}
   \label{eq:ML_Hd}
-  \mathcal{H}^d(\vec{X}_h) = -\sum_{1\leq i<j\leq N_h}X_iJ_{ij}X_j - \sum_{i=1}^{N_h} \left(X_iH_iX_i + \mu_i X_i\right),
+  \mathcal{H}^d(\vec{X}_h) = -\sum_{1\leq i<j\leq N_h}X_iJ_{ij}X_j - \sum_{i=1}^{N_h} \left(X_iH_iX_i + \mu_i X_i\right) + cte,
 \end{equation}
 where the fields and couplings $\{J_{ij},H_i\}$ are equal to those of $\mathcal{H}^0$, and 
 \begin{equation*}
@@ -471,10 +471,14 @@ where the fields and couplings $\{J_{ij},H_i\}$ are equal to those of $\mathcal{
   0 & \text{otherwise}.
   \end{cases}
 \end{equation*}
+The constant $cte$ depends only on the data, and can be written as 
+\begin{equation}
+  cte = - \sum_{i=1}^{N_d}X_iH_iX_i.
+\end{equation}
 As a consequence, the likelihood can be written as 
 \begin{equation}
   \label{eq:ML_likelihood2}
-  P(\vec{X}_d | \bm{C}) = \log Z^d -\log Z^0.
+  P(\vec{X}_d | \bm{C}) = -\frac{1}{2}\sum_{i\in leaves}X_i\Sig^{-1}X_i + \log Z^d -\log Z^0.
 \end{equation}
 The second member of this equation can be computed using the analytical formula \ref{eq:ML_F0}. Since the hamiltonian $\mathcal{H}^d$ is also pairwise, and with a tree-like topology of interaction, we can also write its free energy using the Bethe approximation. However, in this case, we do not know the pairwise marginals $P_{ij}^d(X_i,X_j)$. Thus, we will use message passing to compute those and write the free energy. \\
 

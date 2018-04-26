@@ -133,7 +133,7 @@ Compute all messages for the given tree `MPgraph`. Steps of the computation are 
 3. Call `PushMessage(MPgraph, root, J)`, pushing message from the root to all of its children, and calling `PushMessage` recursively.
 """
 function ComputeMessages!(MPgraph::Array{MPnode,1}, J::Array{Float64,2})
-
+	display(MPgraph)
 	## Finding root
 	flag = 0
 	root = 0 
@@ -311,6 +311,8 @@ function SumMessages(node::MPnode, i::Int64)
 		end
 	end
 	if node.par > 0 && node.par != i
+		# println(sm.Phi)
+		# println(node.messfrompar.Phi)
 		sm.Phi += node.messfrompar.Phi
 		sm.Psi += node.messfrompar.Psi
 	end
